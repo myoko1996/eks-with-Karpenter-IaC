@@ -23,7 +23,7 @@ variable "vpc_cidr_block" {
 }
 
 variable "k8s_version" {
-  default = "1.31"
+  default = "1.32"
 }
 
 variable "private_subnet_cidr_blocks" {
