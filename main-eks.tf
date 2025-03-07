@@ -137,22 +137,17 @@ resource "helm_release" "karpenter" {
   repository_username = data.aws_ecrpublic_authorization_token.token.user_name
   repository_password = data.aws_ecrpublic_authorization_token.token.password
   chart               = "karpenter"
-  version             = "1.1.1"
+  version             = "1.0.0"
   wait                = false
 
   values = [
     <<-EOT
     serviceAccount:
       name: ${module.karpenter.service_account}
-    nodeSelector:
-      karpenter.sh/controller: 'true'
-    dnsPolicy: Default
     settings:
       clusterName: ${module.eks.cluster_name}
       clusterEndpoint: ${module.eks.cluster_endpoint}
       interruptionQueue: ${module.karpenter.queue_name}
-    webhook:
-      enabled: false
     EOT
   ]
 }
