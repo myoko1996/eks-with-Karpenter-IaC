@@ -137,7 +137,7 @@ resource "helm_release" "karpenter" {
   repository_username = data.aws_ecrpublic_authorization_token.token.user_name
   repository_password = data.aws_ecrpublic_authorization_token.token.password
   chart               = "karpenter"
-  version             = "1.0.0"
+  version             = "1.3.0"
   wait                = false
 
   values = [
@@ -150,6 +150,7 @@ resource "helm_release" "karpenter" {
       interruptionQueue: ${module.karpenter.queue_name}
     EOT
   ]
+  depends_on = [module.karpenter]
 }
 
 
