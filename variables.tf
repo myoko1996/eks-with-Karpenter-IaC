@@ -1,19 +1,21 @@
 variable "aws_region" {
   type        = string
   description = "The region to deploy resources to"
-  default     = "ap-southeast-1"
+  default     = "ap-northeast-1"
 }
 
 variable "default_tags" {
   type        = map(string)
-  description = "Map of default tags to apply to resources"
+  description = "Default tags to apply to all resources"
   default = {
     project = "exploring-eks-with-karpenter"
   }
 }
 
 variable "name" {
-  default = "myapp-eks"
+  description = "The name of the EKS cluster"
+  type        = string
+  default     = "myapp-eks"
 }
 
 variable "vpc_cidr_block" {
@@ -23,7 +25,9 @@ variable "vpc_cidr_block" {
 }
 
 variable "k8s_version" {
-  default = "1.32"
+  description = "Kubernetes version to use for the EKS cluster"
+  type        = string
+  default     = "1.32"
 }
 
 variable "private_subnet_cidr_blocks" {

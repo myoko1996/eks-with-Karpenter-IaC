@@ -49,10 +49,12 @@ module "eks" {
   cluster_endpoint_public_access = true
 
   cluster_addons = {
-    coredns                = {}
-    eks-pod-identity-agent = {}
-    kube-proxy             = {}
-    vpc-cni                = {}
+    coredns = {}
+    eks-pod-identity-agent = {
+      most_recent = true
+    }
+    kube-proxy = {}
+    vpc-cni    = {}
   }
 
   vpc_id                   = module.vpc.vpc_id
@@ -89,6 +91,7 @@ module "eks" {
   # Cluster access entry
   # To add the current caller identity as an administrator
   enable_cluster_creator_admin_permissions = true
+  authentication_mode                      = "API"
 
   node_security_group_tags = {
     # NOTE - if creating multiple security groups with this module, only tag the
@@ -100,7 +103,7 @@ module "eks" {
 
 # Karpenter
 module "karpenter" {
-  source = "terraform-aws-modules/eks/aws//modules/karpenter"
+  source  = "terraform-aws-modules/eks/aws//modules/karpenter"
   version = "~>20.33"
 
   cluster_name = module.eks.cluster_name
@@ -115,6 +118,8 @@ module "karpenter" {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
 }
+
+
 
 resource "helm_release" "karpenter" {
   namespace           = "kube-system"
