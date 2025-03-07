@@ -38,6 +38,7 @@ provider "kubectl" {
   }
 }
 
+
 # EKS Cluster
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -49,26 +50,34 @@ module "eks" {
   cluster_endpoint_public_access = true
 
   cluster_addons = {
-    coredns = {}
+    coredns = {
+      most_recent = true
+    }
     eks-pod-identity-agent = {
       most_recent = true
     }
-    kube-proxy = {}
-    vpc-cni    = {}
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
   }
 
   vpc_id                   = module.vpc.vpc_id
   subnet_ids               = module.vpc.private_subnets
   control_plane_subnet_ids = module.vpc.intra_subnets
+  cluster_upgrade_policy = {
+    support_type = "STANDARD"
+  }
 
   eks_managed_node_groups = {
     karpenter = {
       ami_type       = "BOTTLEROCKET_x86_64"
-      instance_types = ["t3.small"]
-
-      min_size     = 2
-      max_size     = 5
-      desired_size = 2
+      instance_types = ["m5.large"]
+      min_size       = 2
+      max_size       = 5
+      desired_size   = 2
 
       taints = {
         # This Taint aims to keep just EKS Addons and Karpenter running on this MNG
@@ -133,6 +142,8 @@ resource "helm_release" "karpenter" {
 
   values = [
     <<-EOT
+    serviceAccount:
+      name: ${module.karpenter.service_account}
     nodeSelector:
       karpenter.sh/controller: 'true'
     dnsPolicy: Default
@@ -145,6 +156,7 @@ resource "helm_release" "karpenter" {
     EOT
   ]
 }
+
 
 resource "kubectl_manifest" "karpenter_node_pool" {
   yaml_body = <<-YAML
